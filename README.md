@@ -17,7 +17,7 @@ Wij 是上一层的权重系数
 
 f`(a) 是本层的激活函数求导
 
-#Layer
+# Layer
 根据公式，每一个传播层包含forward(前向传播)与backward(反向传播)
 
 ```python
@@ -72,7 +72,7 @@ class Layer:
         return self.delta
 ``` 
 
-#Model
+# Model
 model由layer构建而成，依次layer的forward方法计算预测值，调用layer的backward方法更新layer层的权重
 ```python
 class Model:
@@ -110,7 +110,7 @@ class Model:
         return
 ```
 
-#MNIST手写体预测
+# MNIST手写体预测
 构造三层神经网络
 ```python
 model = Model(0.05)
