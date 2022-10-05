@@ -1,26 +1,6 @@
-## 简易神经网络算法实现
+from util import *
+import numpy as np
 
-神经网络算法包含两个部分，前向传播 + 反向传播
-
-前向传播得到预测结果
-
-根据预测结果与真实值的偏差，以反向传播算法更新传播层的权重
-
-整个反向传播算法的核心公式如下
-
-![File Params](pic/公式.png)
-
-其中
-Wij 是上一层的权重系数
-
-δ 是上一层的误差
-
-f`(a) 是本层的激活函数求导
-
-#Layer
-根据公式，每一个传播层包含forward(前向传播)与backward(反向传播)
-
-```python
 class Layer:
     def __init__(self, dim, cell, activate = 'ReLU', layerNum = 0.5):
         self.layerNum = layerNum
@@ -70,11 +50,8 @@ class Layer:
         delta_weight = self.delta.dot(self.input.T) / batch_size
         self.weight = self.weight + learn * delta_weight
         return self.delta
-``` 
 
-#Model
-model由layer构建而成，依次layer的forward方法计算预测值，调用layer的backward方法更新layer层的权重
-```python
+
 class Model:
     def __init__(self, learn):
         self.learn = learn
@@ -108,78 +85,3 @@ class Model:
             delta = layer.backward(delta, weight, learn)
             weight = layer.getWeight()
         return
-```
-
-#MNIST手写体预测
-构造三层神经网络
-```python
-model = Model(0.05)
-layer1 = Layer(784, 100, layerNum=1)
-model.addLayer(layer1)
-layer2 = Layer(100, 50, layerNum=2)
-model.addLayer(layer2)
-layer3 = Layer(50, 10, 'softmax', layerNum=3)
-model.addLayer(layer3)
-
-```
-加载数据集
-```python
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-```
-
-用训练数据更新model的权重，当准确度超过0.9时，停止循环
-```python
-for time in range(30):
-    accuracy = 0
-
-    for index in range(int(x_train.shape[0] / 100)):
-        start = index * 100
-        end = (index + 1) * 100
-        x = x_train[start: end]
-        x = modify_input(x)
-        ## 前向传播
-        predict = model.forward(x)
-        y = y_train[start: end]
-        y = one_hot(y)
-        layer1 = model.getLayer(0)
-        layer2 = model.getLayer(1)
-        delta = y - predict
-        
-        ##反向传播
-        model.backward(delta)
-
-        y = get_predicts(y)
-        predict = get_predicts(predict)
-        new_accuracy = get_accuracy(y, predict)
-        accuracy = new_accuracy if new_accuracy > accuracy else accuracy
-        print('accuracy', accuracy)
-
-    if (accuracy >= 0.9):
-        break
-```
-
-以测试数据验证模型准确度
-```python
- index = 0
-
-x = x_test[index]
-y = y_test[index]
-print_image(x)
-print(y)
-x = modify_input(x)
-predict = get_predicts(model.forward(x))
-print(predict)
-
-## check batch_size predict accuracy
-batch_size = 10000
-
-x_batch = x_test[index:index + batch_size]
-x_batch = modify_input(x_batch)
-predict_batch = get_predicts(model.forward(x_batch))
-y_batch = y_test[index:index + batch_size]
-
-accuracy = get_accuracy(y_batch, predict_batch)
-print(accuracy)
-```
-
-10000条测试数据得到的准确度是**0.8697**，作为神经网络的简易构建，还不错
